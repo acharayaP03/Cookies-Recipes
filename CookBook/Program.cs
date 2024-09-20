@@ -2,18 +2,51 @@
 using CookBook.Recipes.Ingredients;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 
+
+const FileFormat Format = FileFormat.Json;
 var ingredientsRegister = new IngredientsRegister();    
 
+IStringsRepository stringsRepository = Format == FileFormat.Json ? new StringsJsonRepository() : new StringsTextualRepository();
+
+const string FileName = "recipes";
+var fileMetada = new FileMetadata(FileName, Format);
+
+
 var cookiesRecipesApp = new CookiesRecipesApp(
-    new RecipesRepository( new StringsTextualRepository(), ingredientsRegister),
+    //new RecipesRepository( new StringsTextualRepository(), ingredientsRegister),
+    new RecipesRepository(stringsRepository, ingredientsRegister),
+
     new RecipeConsoleUserInteraction(ingredientsRegister)
 );
 
-cookiesRecipesApp.Run("recipes.txt");
+cookiesRecipesApp.Run(fileMetada.ToPath());
 
 
-public class CookiesRecipesApp
+public class FileMetadata
+{
+    public string Name { get; set; }
+    public FileFormat Format { get; }
+
+    public FileMetadata(string name, FileFormat format)
+    {
+        Name = name;
+        Format = format;
+    }
+
+
+    public string ToPath() => $"{Name}.{Format.AsFileExtension()}";
+}
+
+
+public static class FileFormatExtensions
+{
+    public static string AsFileExtension(this FileFormat format) => format == FileFormat.Json ? "json" : "txt";
+}
+
+
+    public class CookiesRecipesApp
 {
 
     private readonly IRecipesRepository _recipesRepository;
@@ -257,6 +290,13 @@ public interface IStringsRepository
     void Write(string filePath, List<string> allRecipes);
 }
 
+public enum FileFormat
+{
+    Text,
+    Json,
+    CSV
+}
+
 public class StringsTextualRepository : IStringsRepository
 {
     private static readonly string Seperator = Environment.NewLine;
@@ -276,5 +316,26 @@ public class StringsTextualRepository : IStringsRepository
     public void Write(string filePath, List<string> allRecipes)
     {
         File.WriteAllText(filePath, string.Join(Seperator, allRecipes));
+    }
+}
+
+public class StringsJsonRepository : IStringsRepository
+{
+  
+    public List<string> Read(string filePath)
+    {
+
+        if (File.Exists(filePath))
+        {
+            var fileContents = File.ReadAllText(filePath);
+            return JsonSerializer.Deserialize<List<string>>(fileContents);
+        }
+        return new List<string>();
+    }
+
+
+    public void Write(string filePath, List<string> allRecipes)
+    {
+        File.WriteAllText(filePath, JsonSerializer.Serialize(allRecipes));
     }
 }
