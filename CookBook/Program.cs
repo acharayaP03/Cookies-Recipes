@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using CookBook.Recipes;
+using CookBook.Recipes.Ingredients;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 var cookiesRecipesApp = new CookiesRecipesApp(
@@ -6,7 +8,7 @@ var cookiesRecipesApp = new CookiesRecipesApp(
     new RecipesUserInteraction()
 );
 
-cookiesRecipesApp.Run();
+cookiesRecipesApp.Run("recipes.txt");
 
 
 public class CookiesRecipesApp
@@ -20,28 +22,28 @@ public class CookiesRecipesApp
         _recipesRepository = recipesRepository;
         _recipesUserInteraction = recipesUserInteraction;
     }
-    public void Run()
+    public void Run(string filePath)
     {
         var allRecipes = _recipesRepository.Read(filePath);
         _recipesUserInteraction.PrintExistingRecipes(allRecipes);
-        _recipesUserInteraction.PromptToCreateRecipe();
+        //_recipesUserInteraction.PromptToCreateRecipe();
 
-        var ingredients = _recipesUserInteraction.ReadIngredientsFromUser();
+        //var ingredients = _recipesUserInteraction.ReadIngredientsFromUser();
 
-        if (ingredients.Count > 0)
-        {
-            var recipes = new Recipe(ingredients);
-            allRecipes.Add(recipes);
+        //if (ingredients.Count > 0)
+        //{
+        //    var recipes = new Recipe(ingredients);
+        //    allRecipes.Add(recipes);
 
-            _recipesRepository.Write(filePath, allRecipes);
+        //    _recipesRepository.Write(filePath, allRecipes);
 
-            _recipesUserInteraction.ShowMessage("Recipe added:");
-            _recipesUserInteraction.ShowMessage(recipes.ToString());
-        }
-        else
-        {
-            _recipesUserInteraction.ShowMessage("No ingredients have been selected. " + "Recipe will not be saved");
-        }
+        //    _recipesUserInteraction.ShowMessage("Recipe added:");
+        //    _recipesUserInteraction.ShowMessage(recipes.ToString());
+        //}
+        //else
+        //{
+        //    _recipesUserInteraction.ShowMessage("No ingredients have been selected. " + "Recipe will not be saved");
+        //}
 
 
         // Lastly once eveything is done, exit app
@@ -54,11 +56,13 @@ public class CookiesRecipesApp
 public interface IRecipesUserInteraction
 {
     void Exit();
+    void PrintExistingRecipes(IEnumerable<Recipe> allRecipes);
     void ShowMessage(string message);
 }
 
 public interface IRecipesRepository
 {
+    List<Recipe> Read(string filePath);
 }
 
 public class RecipesUserInteraction : IRecipesUserInteraction
@@ -69,48 +73,52 @@ public class RecipesUserInteraction : IRecipesUserInteraction
         Console.ReadKey();
     }
 
+    public void PrintExistingRecipes(IEnumerable<Recipe> allRecipes)
+    {
+        if(allRecipes.Count() > 0)
+        {
+            Console.WriteLine("Existing recipes are:" + Environment.NewLine);
+            var counter = 1;
+            foreach( var recipe in allRecipes)
+            {
+                //Console.WriteLine($"{recipeIndex + 1}. {allRecipes.ElementAt(recipeIndex)}");
+                Console.WriteLine($"*******{counter}***********");
+                Console.WriteLine(recipe);
+                Console.WriteLine();
+                ++counter;
+            }
+        }
+  
+    }
+
     public void ShowMessage(string message)
     {
         Console.WriteLine(message);
     }
 }
-//{
-//    public void Exit()
-//    {
-//        Console.WriteLine("Please press any key to close...");
-//        Console.ReadKey();
-//    }
 
-//    internal void PrintExistingRecipes(object allRecipes)
-//    {
-//        throw new NotImplementedException();
-//    }
-
-//    internal void PromptToCreateRecipe()
-//    {
-//        throw new NotImplementedException();
-//    }
-
-//    internal RecipesRepository ReadIngredientsFromUser()
-//    {
-//        throw new NotImplementedException();
-//    }
-
-//    public void ShowMessage(string message)
-//    {
-//        Console.WriteLine(message);
-//    }
-//}
 
 public class RecipesRepository : IRecipesRepository
 {
-    //internal object Read(object filePath)
-    //{
-    //    throw new NotImplementedException();
-    //}
+    public List<Recipe> Read(string filePath)
+    {
 
-    //internal void Write(CallerFilePathAttribute callerFilePathAttribute, object allRecipes)
-    //{
-    //    throw new NotImplementedException();
-    //}
+        return new List<Recipe>
+        {
+            new Recipe(new List<Ingredient>
+                {
+                    new WheatFlour(),
+                    new Butter(),
+                    new Sugar(),
+                }),
+            new Recipe(new List<Ingredient>
+            {
+                new CocoaPowder(),
+                new SpeltFlour(),
+                new Cinnamon()
+            })
+
+
+        };
+    }
 }
