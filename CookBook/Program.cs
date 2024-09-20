@@ -28,22 +28,22 @@ public class CookiesRecipesApp
         _recipesUserInteraction.PrintExistingRecipes(allRecipes);
         _recipesUserInteraction.PromptToCreateRecipe();
 
-        //var ingredients = _recipesUserInteraction.ReadIngredientsFromUser();
+        var ingredients = _recipesUserInteraction.ReadIngredientsFromUser();
 
-        //if (ingredients.Count > 0)
-        //{
-        //    var recipes = new Recipe(ingredients);
-        //    allRecipes.Add(recipes);
+        if (ingredients.Count() > 0)
+        {
+            var recipe = new Recipe(ingredients);
+            allRecipes.Add(recipe);
 
-        //    _recipesRepository.Write(filePath, allRecipes);
+            //_recipesRepository.Write(filePath, allRecipes);
 
-        //    _recipesUserInteraction.ShowMessage("Recipe added:");
-        //    _recipesUserInteraction.ShowMessage(recipes.ToString());
-        //}
-        //else
-        //{
-        //    _recipesUserInteraction.ShowMessage("No ingredients have been selected. " + "Recipe will not be saved");
-        //}
+            _recipesUserInteraction.ShowMessage("Recipe added:");
+            _recipesUserInteraction.ShowMessage(recipe.ToString());
+        }
+        else
+        {
+            _recipesUserInteraction.ShowMessage("No ingredients have been selected. " + "Recipe will not be saved");
+        }
 
 
         // Lastly once eveything is done, exit app
@@ -58,6 +58,7 @@ public interface IRecipesUserInteraction
     void Exit();
     void PrintExistingRecipes(IEnumerable<Recipe> allRecipes);
     void PromptToCreateRecipe();
+    IEnumerable<Ingredient> ReadIngredientsFromUser();
     void ShowMessage(string message);
 }
 
@@ -78,6 +79,19 @@ public class IngredientsRegister
         new CocoaPowder(),
         new Cinnamon()
     };
+
+    public Ingredient GetById(int id)
+    {
+        foreach(var ingredient in All)
+        {
+            if(ingredient.Id == id)
+            {
+                return ingredient;
+            }
+        }
+
+        return null;
+    }
 }
 
 public class RecipeConsoleUserInteraction : IRecipesUserInteraction
@@ -119,15 +133,7 @@ public class RecipeConsoleUserInteraction : IRecipesUserInteraction
         Console.WriteLine(message);
     }
 
-    public void PrintExistingRecipes()
-    {
-        //Console.WriteLine("Create a new cookie recipe!. " + "Available ingredients are: ");
 
-        //foreach(var ingredient in _ingredientsRegister.All)
-        //{
-        //    Console.WriteLine(ingredient);
-        //}
-    }
 
    public void PromptToCreateRecipe()
     {
@@ -139,6 +145,39 @@ public class RecipeConsoleUserInteraction : IRecipesUserInteraction
         }
     }
 
+    public IEnumerable<Ingredient> ReadIngredientsFromUser()
+    {
+        bool shallStop = false;
+        var ingredients = new List<Ingredient>();
+
+
+        while (!shallStop)
+        {
+            Console.WriteLine("Please enter the ingredient number or type 'exit' to finish: ");
+            var userInput = Console.ReadLine();
+
+            if (int.TryParse(userInput, out int id))
+            {
+                var selectedIngredient = _ingredientsRegister.GetById(id);
+                if (selectedIngredient is not null)
+                {
+
+                    ingredients.Add(selectedIngredient);
+                }
+                else
+                {
+                    Console.WriteLine("Invalid ingredient number. Please try again.");
+                }
+            }
+            else
+            {
+                shallStop = true;
+            }
+        }
+
+
+        return ingredients;
+    }
 }
 
 
