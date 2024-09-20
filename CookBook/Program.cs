@@ -1,18 +1,21 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
-var cookiesRecipesApp = new CookiesRecipesApp();
+var cookiesRecipesApp = new CookiesRecipesApp(
+    new RecipesRepository(),
+    new RecipesUserInteraction()
+);
 
 cookiesRecipesApp.Run();
 
 
-public class CookiesRecipesApp()
+public class CookiesRecipesApp
 {
 
-    private readonly RecipesRepository _recipesRepository;
-    private readonly RecipesUserInteraction _recipesUserInteraction;
+    private readonly IRecipesRepository _recipesRepository;
+    private readonly IRecipesUserInteraction _recipesUserInteraction;
 
-
-    public CookiesRecipesApp(RecipesRepository recipesRepository, RecipesUserInteraction recipesUserInteraction)
+    public CookiesRecipesApp(IRecipesRepository recipesRepository, IRecipesUserInteraction recipesUserInteraction)
     {
         _recipesRepository = recipesRepository;
         _recipesUserInteraction = recipesUserInteraction;
@@ -25,12 +28,12 @@ public class CookiesRecipesApp()
 
         var ingredients = _recipesUserInteraction.ReadIngredientsFromUser();
 
-        if(ingredients.Count > 0)
+        if (ingredients.Count > 0)
         {
-            var recipes = new CookiesRecipesApp(ingredients);
+            var recipes = new Recipe(ingredients);
             allRecipes.Add(recipes);
 
-            _recipesRepository.Write(CallerFilePathAttribute, allRecipes);
+            _recipesRepository.Write(filePath, allRecipes);
 
             _recipesUserInteraction.ShowMessage("Recipe added:");
             _recipesUserInteraction.ShowMessage(recipes.ToString());
@@ -47,10 +50,67 @@ public class CookiesRecipesApp()
     }
 }
 
-internal class RecipesUserInteraction
+
+public interface IRecipesUserInteraction
+{
+    void Exit();
+    void ShowMessage(string message);
+}
+
+public interface IRecipesRepository
 {
 }
 
-internal class RecipesRepository
+public class RecipesUserInteraction : IRecipesUserInteraction
 {
+    public void Exit()
+    {
+        Console.WriteLine("Please press any key to close...");
+        Console.ReadKey();
+    }
+
+    public void ShowMessage(string message)
+    {
+        Console.WriteLine(message);
+    }
+}
+//{
+//    public void Exit()
+//    {
+//        Console.WriteLine("Please press any key to close...");
+//        Console.ReadKey();
+//    }
+
+//    internal void PrintExistingRecipes(object allRecipes)
+//    {
+//        throw new NotImplementedException();
+//    }
+
+//    internal void PromptToCreateRecipe()
+//    {
+//        throw new NotImplementedException();
+//    }
+
+//    internal RecipesRepository ReadIngredientsFromUser()
+//    {
+//        throw new NotImplementedException();
+//    }
+
+//    public void ShowMessage(string message)
+//    {
+//        Console.WriteLine(message);
+//    }
+//}
+
+public class RecipesRepository : IRecipesRepository
+{
+    //internal object Read(object filePath)
+    //{
+    //    throw new NotImplementedException();
+    //}
+
+    //internal void Write(CallerFilePathAttribute callerFilePathAttribute, object allRecipes)
+    //{
+    //    throw new NotImplementedException();
+    //}
 }
