@@ -297,38 +297,49 @@ public enum FileFormat
     CSV
 }
 
-public class StringsTextualRepository : IStringsRepository
+public class StringsTextualRepository : StringsRepository
 {
     private static readonly string Seperator = Environment.NewLine;
 
-    public List<string> Read(string filePath)
+    protected override string? StringsToText(List<string> allRecipes)
     {
-
-        if(File.Exists(filePath))
-        {
-            var fileContents = File.ReadAllText(filePath);
-            return fileContents.Split(Seperator).ToList();
-        }
-        return new List<string>();
+       return string.Join(Seperator, allRecipes);
     }
 
-
-    public void Write(string filePath, List<string> allRecipes)
+    protected override List<string> TextToStrings(string fileContents)
     {
-        File.WriteAllText(filePath, string.Join(Seperator, allRecipes));
+        return fileContents.Split(Seperator).ToList();
     }
 }
 
-public class StringsJsonRepository : IStringsRepository
+public class StringsJsonRepository : StringsRepository
 {
-  
+
+    protected override string? StringsToText(List<string> allRecipes)
+    {
+        return JsonSerializer.Serialize(allRecipes);
+    }
+
+    protected override List<string> TextToStrings(string fileContents)
+    {
+        return JsonSerializer.Deserialize<List<string>>(fileContents);
+    }
+}
+
+
+public abstract class StringsRepository : IStringsRepository
+{
+
+    protected abstract List<string> TextToStrings(string fileContents);
+    protected abstract string? StringsToText(List<string> allRecipes);
+
     public List<string> Read(string filePath)
     {
 
         if (File.Exists(filePath))
         {
             var fileContents = File.ReadAllText(filePath);
-            return JsonSerializer.Deserialize<List<string>>(fileContents);
+            return TextToStrings(fileContents);
         }
         return new List<string>();
     }
@@ -336,6 +347,7 @@ public class StringsJsonRepository : IStringsRepository
 
     public void Write(string filePath, List<string> allRecipes)
     {
-        File.WriteAllText(filePath, JsonSerializer.Serialize(allRecipes));
+        File.WriteAllText(filePath, StringsToText(allRecipes);
     }
 }
+
