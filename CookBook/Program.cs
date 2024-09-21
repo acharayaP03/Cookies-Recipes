@@ -347,7 +347,7 @@ public abstract class StringsRepository : IStringsRepository
 
     public void Write(string filePath, List<string> allRecipes)
     {
-        File.WriteAllText(filePath, StringsToText(allRecipes);
+        File.WriteAllText(filePath, StringsToText(allRecipes));
     }
 }
 
