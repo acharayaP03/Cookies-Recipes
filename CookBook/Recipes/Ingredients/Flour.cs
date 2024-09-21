@@ -1,10 +1,7 @@
-﻿namespace CookBook.Recipes.Ingredients
+﻿namespace CookBook.Recipes.Ingredients;
+
+public abstract class Flour : Ingredient
 {
-    public abstract class Flour : Ingredient
-    {
-        public override string PreparationInstrunctions => $"Sieve. {base.PreparationInstrunctions}";
-    }
-
-
+    public override string PreparationInstrunctions => $"Sieve. {base.PreparationInstrunctions}";
 }
 
