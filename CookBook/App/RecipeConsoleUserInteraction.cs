@@ -26,15 +26,13 @@ public class RecipeConsoleUserInteraction : IRecipesUserInteraction
         if (allRecipes.Count() > 0)
         {
             Console.WriteLine("Existing recipes are:" + Environment.NewLine);
-            var counter = 1;
-            foreach (var recipe in allRecipes)
-            {
-                //Console.WriteLine($"{recipeIndex + 1}. {allRecipes.ElementAt(recipeIndex)}");
-                Console.WriteLine($"*******{counter}***********");
-                Console.WriteLine(recipe);
-                Console.WriteLine();
-                ++counter;
-            }
+            var allRecipiesAsStrings = allRecipes.Select((recipe, index) =>
+            $@"******* {index + 1} ***********
+{ recipe}"
+            );
+
+            Console.WriteLine(string.Join(Environment.NewLine, allRecipiesAsStrings));
+            Console.WriteLine();
         }
 
     }
@@ -49,11 +47,7 @@ public class RecipeConsoleUserInteraction : IRecipesUserInteraction
     public void PromptToCreateRecipe()
     {
         Console.WriteLine("Create a new cookie recipe!. " + "Available ingredients are: ");
-
-        foreach (var ingredient in _ingredientsRegister.All)
-        {
-            Console.WriteLine(ingredient);
-        }
+        Console.WriteLine(string.Join(Environment.NewLine, _ingredientsRegister.All));
     }
 
     public IEnumerable<Ingredient> ReadIngredientsFromUser()

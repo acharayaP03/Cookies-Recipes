@@ -1,4 +1,6 @@
-﻿namespace CookBook.Recipes.Ingredients;
+﻿
+
+namespace CookBook.Recipes.Ingredients;
 
 public class IngredientsRegister : IIngredientsRegister
 {
@@ -14,15 +16,20 @@ public class IngredientsRegister : IIngredientsRegister
 
     public Ingredient GetById(int id)
     {
-        foreach (var ingredient in All)
+
+        var alIngredientsWithGivenId = All.Where(ingredient => ingredient.Id == id);
+
+        if(alIngredientsWithGivenId.Count() > 1)
         {
-            if (ingredient.Id == id)
-            {
-                return ingredient;
-            }
+            throw new InvalidOperationException($"There are more than one ingredient with id {id}");
         }
 
-        return null;
+        //if(All.Select(ingredient => ingredient.Id).Distinct().Count() != All.Count())
+        //{
+        //    throw new InvalidOperationException($"Tsome ingredients have duplicate id.");
+        //}
+
+        return alIngredientsWithGivenId.FirstOrDefault();
     }
 }
 
