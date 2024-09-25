@@ -25,15 +25,11 @@ public class RecipesRepository : IRecipesRepository
 
     private Recipe RecipeFromString(string recipeFromFile)
     {
-        var textualIds = recipeFromFile.Split(Seperator);
-        var ingredients = new List<Ingredient>();
+        var ingredients = recipeFromFile.Split(Seperator)
+            .Select(textualId => int.Parse(textualId))
+            .Select(id => _ingredientsRegister.GetById(id))
+            .ToList();
 
-        foreach (var textualId in textualIds)
-        {
-            var id = int.Parse(textualId);
-            var ingredient = _ingredientsRegister.GetById(id);
-            ingredients.Add(ingredient);
-        }
 
         return new Recipe(ingredients);
     }
@@ -41,18 +37,15 @@ public class RecipesRepository : IRecipesRepository
     public void Write(string filePath, List<Recipe> allRecipes)
     {
 
-        var recipesAsStrings = new List<string>();
+        //var recipesAsStrings = allRecipes.Select(recipe => string.Join(Seperator, recipe.Ingredients.Select(ingredient => ingredient.Id)));
 
-        foreach (var recipe in allRecipes)
+        var recipesAsStrings = allRecipes.Select(recipe =>
         {
-            var allIds = new List<int>();
+            var allIds = recipe.Ingredients.Select(ingredient => ingredient.Id);
 
-            foreach (var ingredient in recipe.Ingredients)
-            {
-                allIds.Add(ingredient.Id);
-            }
-            recipesAsStrings.Add(string.Join(Seperator, allIds));
-        }
+            return string.Join(Seperator, allIds);
+        }).ToList();
+
         _stringsRepository.Write(filePath, recipesAsStrings);
     }
 }
