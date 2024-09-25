@@ -18,16 +18,9 @@ public class RecipesRepository : IRecipesRepository
 
     public List<Recipe> Read(string filePath)
     {
-        List<string> recipesFromFile = _stringsRepository.Read(filePath);
-        var recipes = new List<Recipe>();
-
-        foreach (var recipeFromFile in recipesFromFile)
-        {
-            var recipe = RecipeFromString(recipeFromFile);
-            recipes.Add(recipe);
-        }
-
-        return recipes;
+        return _stringsRepository.Read(filePath)
+            .Select(RecipeFromString)
+            .ToList();
     }
 
     private Recipe RecipeFromString(string recipeFromFile)
